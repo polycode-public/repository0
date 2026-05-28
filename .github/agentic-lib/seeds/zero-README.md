@@ -41,6 +41,7 @@ agentic-lib ships with 20 built-in missions plus two special modes, graded using
 | `4-kyu-apply-cron-engine` | 4 kyu | Cron expression parser |
 | `4-kyu-apply-dense-encoding` | 4 kyu | Dense binary encoding |
 | `4-kyu-analyze-json-schema-diff` | 4 kyu | JSON Schema diff |
+| `4-kyu-apply-owl-ontology` | 4 kyu | OWL ontology processor |
 | `3-kyu-analyze-lunar-lander` | 3 kyu | Lunar lander simulation |
 | `3-kyu-evaluate-time-series-lab` | 3 kyu | Time series analysis |
 | `2-kyu-create-markdown-compiler` | 2 kyu | Markdown compiler |
@@ -108,29 +109,6 @@ MISSION.md -> [supervisor] -> dispatch workflows -> Issue -> Code -> Test -> PR 
 ```
 
 The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context and dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
-
-## Examples
-
-Below are quick examples showing how to use the fizzBuzz library from this repository.
-
-Node (ESM):
-
-```js
-import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
-
-console.log(fizzBuzzSingle(3)); // "Fizz"
-console.log(fizzBuzz(15)); // ["1","2","Fizz",...,"FizzBuzz"]
-```
-
-Browser (via src/web/lib.js):
-
-```html
-<script type="module">
-  import { fizzBuzz, fizzBuzzSingle } from './src/web/lib.js';
-  console.log(fizzBuzz(15));
-  console.log(fizzBuzzSingle(7));
-</script>
-```
 
 ## Configuration
 
