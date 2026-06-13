@@ -116,19 +116,21 @@ Below are quick examples showing how to use the fizzBuzz library from this repos
 Node (ESM):
 
 ```js
-import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
+import { fizzBuzz, fizzBuzzSingle, fizzBuzzCounts } from './src/lib/main.js';
 
 console.log(fizzBuzzSingle(3)); // "Fizz"
 console.log(fizzBuzz(15)); // ["1","2","Fizz",...,"FizzBuzz"]
+console.log(fizzBuzzCounts(15)); // { fizz: 4, buzz: 2, fizzbuzz: 1, number: 8 }
 ```
 
 Browser (via src/web/lib.js):
 
 ```html
 <script type="module">
-  import { fizzBuzz, fizzBuzzSingle } from './src/web/lib.js';
+  import { fizzBuzz, fizzBuzzSingle, fizzBuzzCounts } from './src/web/lib.js';
   console.log(fizzBuzz(15));
   console.log(fizzBuzzSingle(7));
+  console.log(fizzBuzzCounts(15));
 </script>
 ```
 

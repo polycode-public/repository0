@@ -65,6 +65,33 @@ export function fizzBuzz(n) {
   return out;
 }
 
+export function fizzBuzzCounts(n) {
+  if (typeof n !== "number") {
+    throw new TypeError("n must be a number");
+  }
+  if (!Number.isInteger(n)) {
+    throw new TypeError("n must be an integer");
+  }
+  if (n < 0) {
+    throw new RangeError("n must be >= 0");
+  }
+  const counts = { fizz: 0, buzz: 0, fizzbuzz: 0, number: 0 };
+  if (n === 0) return counts;
+  for (let i = 1; i <= n; i++) {
+    const result = fizzBuzzSingle(i);
+    if (result === "FizzBuzz") {
+      counts.fizzbuzz++;
+    } else if (result === "Fizz") {
+      counts.fizz++;
+    } else if (result === "Buzz") {
+      counts.buzz++;
+    } else {
+      counts.number++;
+    }
+  }
+  return counts;
+}
+
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
