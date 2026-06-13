@@ -13,10 +13,10 @@ Each assistant has complementary strengths — GitHub Copilot is optimized for c
 
 A **template repository** demonstrating the agentic-lib workflows. Starting point for new agentic projects. The code in `src/lib/main.js` is the focus of the workflow — it is modified by autonomous workflows to deliver project goals.
 
-- **Package**: `@xn-intenton-z2a/repository0`
+- **Package**: `@polycode-public/repository0`
 - **License**: MIT
 - **Entry point**: `src/lib/main.js`
-- **Workflows from**: [`agentic-lib`](https://github.com/xn-intenton-z2a/agentic-lib)
+- **Workflows from**: [`agentic-lib`](https://github.com/polycode-public/agentic-lib)
 
 ## Code Review Philosophy
 

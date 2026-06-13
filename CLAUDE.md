@@ -4,8 +4,8 @@
 
 A **template repository** that demonstrates the agentic-lib workflows. Starting point for new agentic projects. The code in `src/lib/main.js` is the focus of the workflow and is modified by the workflow to deliver project goals.
 
-- **Package**: `@xn-intenton-z2a/repository0`
-- **Organisation**: `xn-intenton-z2a`
+- **Package**: `@polycode-public/repository0`
+- **Organisation**: `polycode-public`
 - **License**: MIT
 - **Entry point**: `src/lib/main.js`
 
@@ -22,7 +22,7 @@ A **template repository** that demonstrates the agentic-lib workflows. Starting 
 
 ## Distributed Files (CRITICAL — fix at source, not here)
 
-All files in this repo except user content are **distributed from `agentic-lib`** via `npx @xn-intenton-z2a/agentic-lib init --purge`. Fixing them locally will be overwritten on the next init run. Fix bugs in `agentic-lib/src/` instead.
+All files in this repo except user content are **distributed from `agentic-lib`** via `npx @polycode-public/agentic-lib init --purge`. Fixing them locally will be overwritten on the next init run. Fix bugs in `agentic-lib/src/` instead.
 
 ### Workflows → `.github/workflows/`
 
