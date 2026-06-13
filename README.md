@@ -21,7 +21,7 @@ Run the init workflow from the GitHub Actions tab (**agentic-lib-init** with mod
 npx @polycode-public/agentic-lib init --purge --mission 7-kyu-understand-fizz-buzz
 ```
 
-This resets the repository to a clean state with your chosen mission in `MISSION.md`. The default mission is **fizz-buzz** (7-kyu).
+This resets the repository to a clean state with your chosen intent in `INTENT.md`. The default intent is **fizz-buzz** (7-kyu).
 
 #### Built-in Missions
 
@@ -58,7 +58,7 @@ npx @polycode-public/agentic-lib iterate --list-missions
 
 #### Write Your Own Mission
 
-Edit `MISSION.md` directly — describe what you want to build, the features, requirements, and acceptance criteria as checkboxes:
+Edit `INTENT.md` directly — describe what you want to build, the features, requirements, and acceptance criteria as checkboxes:
 
 ```markdown
 # Mission
@@ -102,7 +102,7 @@ Workflows ship with schedule **off** by default. Activate them from the GitHub A
 ## How It Works
 
 ```
-MISSION.md -> [supervisor] -> dispatch workflows -> Issue -> Code -> Test -> PR -> Merge
+INTENT.md -> [supervisor] -> dispatch workflows -> Issue -> Code -> Test -> PR -> Merge
                                                      ^                           |
                                                      +---------------------------+
 ```
@@ -157,7 +157,6 @@ src/lib/main.js              <- library (browser-safe)
 src/web/index.html            <- web page (imports ./lib.js)
 tests/unit/main.test.js       <- unit tests
 tests/behaviour/              <- Playwright E2E
-docs/                         <- build output for GitHub Pages
 ```
 
 ## Updating
@@ -170,6 +169,6 @@ npx @polycode-public/agentic-lib@latest init --purge
 
 ## Links
 
-- [MISSION.md](MISSION.md) — your project goals
+- [INTENT.md](INTENT.md) — your project goals
 - [agentic-lib documentation](https://github.com/polycode-public/agentic-lib) — full SDK docs
 - [intenti&ouml;n website](https://xn--intenton-z2a.com)

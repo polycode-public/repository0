@@ -69,7 +69,7 @@ On `--purge`, these seed files overwrite project root files:
 |-----------|--------|
 | `zero-main.js` | `src/lib/main.js` |
 | `zero-main.test.js` | `tests/unit/main.test.js` |
-| `zero-MISSION.md` | `MISSION.md` |
+| `zero-INTENT.md` | `INTENT.md` |
 | `zero-package.json` | `package.json` |
 | `zero-README.md` | `README.md` |
 

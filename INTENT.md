@@ -1,6 +1,6 @@
-# Mission
+# Intent
 
-A JavaScript library exporting FizzBuzz functions. This is the simplest possible mission — if the pipeline can't complete this and stop, something is fundamentally broken.
+A JavaScript library exporting FizzBuzz functions. This is the simplest possible intent — if the pipeline can't deliver this and stop, something is fundamentally broken.
 
 ## Core Functions
 

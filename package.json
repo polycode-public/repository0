@@ -5,20 +5,14 @@
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
-    "build": "npm run build:web",
-    "build:web": "node .github/agentic-lib/scripts/build-web.cjs",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "test:behaviour": "npx playwright test --config playwright.config.js",
-    "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "@polycode-public/agentic-lib": "^7.4.58"
-  },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
     "@vitest/coverage-v8": "^4.0.18",

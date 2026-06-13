@@ -4,6 +4,9 @@ node_modules/
 # Coverage
 coverage/
 
+# Test output
+test-results/
+
 # Environment and secrets
 .env
 secrets.env
