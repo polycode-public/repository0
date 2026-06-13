@@ -65,6 +65,35 @@ export function fizzBuzz(n) {
   return out;
 }
 
+export function fizzBuzzRange(start, end) {
+  if (typeof start !== "number") {
+    throw new TypeError("start must be a number");
+  }
+  if (typeof end !== "number") {
+    throw new TypeError("end must be a number");
+  }
+  if (!Number.isInteger(start)) {
+    throw new TypeError("start must be an integer");
+  }
+  if (!Number.isInteger(end)) {
+    throw new TypeError("end must be an integer");
+  }
+  if (start < 1) {
+    throw new RangeError("start must be a positive integer");
+  }
+  if (end < 1) {
+    throw new RangeError("end must be a positive integer");
+  }
+  if (start > end) {
+    throw new RangeError("start must be <= end");
+  }
+  const out = [];
+  for (let i = start; i <= end; i++) {
+    out.push(fizzBuzzSingle(i));
+  }
+  return out;
+}
+
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
