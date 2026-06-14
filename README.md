@@ -1,39 +1,36 @@
-# repo
+# repository0
 
-This repository is powered by [intenti&ouml;n agentic-lib](https://github.com/polycode-public/agentic-lib) — autonomous code transformation driven by a one-shot `claude -p` engine on AWS Bedrock. Write an intent, and the engine writes code, runs tests, and opens pull requests.
+The **MIT template** a fleet repo is cut from. It ships a clean Node/ESM library
+skeleton (a browser-safe library + a tiny web demo + a Playwright behaviour test)
+and an `INTENT.md`. Write an intent, and [intentïon agentic-lib](https://github.com/polycode-public/agentic-lib)
+— a one-shot `claude -p` engine on AWS Bedrock — writes the code, runs the tests, and
+opens pull requests towards it.
 
-## Getting Started
+The template is **clean**: the product is just the package identity (no delivered
+example). `INTENT.md` carries a FizzBuzz smoke-test as the fixed point the engine
+delivers towards — the simplest proof the pipeline works end to end.
 
-### Step 1: Create Your Repository
+## Getting started
 
-Click **"Use this template"** on the [repository0](https://github.com/polycode-public/repository0) page, or use the GitHub CLI:
+### 1. Create your repository
+
+Click **"Use this template"** on the [repository0](https://github.com/polycode-public/repository0)
+page, or:
 
 ```bash
 gh repo create my-project --template polycode-public/repository0 --public --clone
-cd my-project
+cd my-project && npm install
 ```
 
-### Step 2: Write Your Intent
+### 2. Write your intent
 
-Edit `INTENT.md` directly — describe what should exist: the features, requirements, and acceptance criteria as checkboxes. This is the fixed point the engine delivers towards. The template ships with a FizzBuzz intent as the simplest possible smoke test.
+Edit `INTENT.md` — describe what should exist (features, requirements, acceptance
+criteria as checkboxes). This is the fixed point the engine delivers towards.
 
-```markdown
-# Intent
+### 3. Configure CI (Bedrock via GitHub OIDC)
 
-Build a CLI tool that converts CSV files to formatted Markdown tables.
-
-## Requirements
-- Read CSV from file or stdin
-- Auto-detect delimiter
-
-## Acceptance Criteria
-- [ ] Reading a CSV with 3 columns produces a 3-column Markdown table
-- [ ] All unit tests pass
-```
-
-### Step 3: Configure CI (Bedrock via GitHub OIDC)
-
-CI runs as GitHub Actions and authenticates to AWS Bedrock with GitHub OIDC — no static keys. Set these in **Settings > Secrets and variables > Actions**:
+CI authenticates to AWS Bedrock with GitHub OIDC — no static keys. In **Settings >
+Secrets and variables > Actions**:
 
 | Kind | Name | Value |
 |------|------|-------|
@@ -42,52 +39,135 @@ CI runs as GitHub Actions and authenticates to AWS Bedrock with GitHub OIDC — 
 | var | `AWS_REGION` | `eu-west-2` |
 | secret | `AWS_OIDC_ROLE` | ARN of the Bedrock OIDC role to assume |
 
-Then in **Settings > Actions > General**:
-- Workflow permissions: **Read and write permissions**
-- Allow GitHub Actions to create PRs: **Checked**
+And in **Settings > Actions > General**: workflow permissions **Read and write**,
+**Allow GitHub Actions to create PRs** checked.
 
-## How It Works
+To connect the repo to its **marginalia graph** (chat seed, webhooks, MCP — see
+below), also set the secrets `MARGINALIA_GRAPH_ID` and `MARGINALIA_API_KEY`.
 
-```
-INTENT.md / issue / PR review  ->  agentic-lib transform@v8  ->  Pull Request
-```
+## CLI tools (npm scripts)
+
+The engine's CLI is exposed as simplified `npm run` scripts (they call
+`npx github:polycode-public/agentic-lib#v8` — once agentic-lib is published to npm,
+`npx @polycode-public/agentic-lib` works the same way):
+
+| Script | What it does |
+|--------|--------------|
+| `npm run init` | Lay down / refresh the consumer workflows, `AGENTS.md`, `agentic-lib.toml`, `.mcp.json`, and the engine CLI scripts + tooling deps in `package.json` (non-destructive — never overwrites your name/version/product). |
+| `npm run init:dry` | Show what `init` would change, writing nothing. |
+| `npm run reset` | **Full reset to a clean template** — re-seed the product skeleton (library + web demo + behaviour test) and clean the GitHub side (close issues/PRs, delete stale branches/runs). Removes any delivered example (e.g. fizzbuzz). |
+| `npm run reset:mission -- <name>` | Reset and set `INTENT.md` from a built-in mission, e.g. `npm run reset:mission -- 6-kyu-understand-roman-numerals`. |
+| `npm run missions` | List the built-in mission library (8-kyu → 1-dan graded seeds). |
+| `npm run engine:version` | Print the agentic-lib engine version. |
+| `npm test` | Unit + system tests (Vitest). |
+| `npm run test:unit` | Unit tests with coverage. |
+| `npm run test:behaviour` | Playwright behaviour tests. |
+| `npm run start:cli` | Run the library entry point. |
+
+> `reset` is the canonical way to get back to a clean template: it strips any
+> delivered code and regenerates the seed skeleton green.
+
+## Delivery via GitHub Actions
 
 Three thin consumer workflows pin the engine via
-`uses: polycode-public/agentic-lib/.github/workflows/transform.yml@v8`:
+`uses: polycode-public/agentic-lib/.github/workflows/transform.yml@v8`. Each is one
+trigger → one one-shot `claude -p` transformation on Bedrock → one draft PR:
 
-| Workflow | Fires on | What it does |
-|----------|----------|--------------|
-| `.github/workflows/on-intent.yml`   | issue assigned/labelled, or `INTENT.md` pushed | delivers the intent as a PR |
-| `.github/workflows/on-review.yml`   | a PR review is submitted | addresses all review threads in one revision |
-| `.github/workflows/on-schedule.yml` | daily cron, or manual `fix-ci` | tends the repo, or fixes a red default branch |
+| Workflow | Fires on | Transform `type` | What it does |
+|----------|----------|------------------|--------------|
+| `.github/workflows/on-intent.yml` | issue assigned/labelled, or `INTENT.md` pushed | `deliver-intent` | delivers the intent as a PR |
+| `.github/workflows/on-review.yml` | a PR review is submitted | `address-review` | addresses all review threads in one revision |
+| `.github/workflows/on-schedule.yml` | daily cron, or manual `fix-ci` | `tend` / `fix-ci` | tends the repo, or fixes a red default branch |
 
-Each run is a one-shot `claude -p` invocation against Bedrock. The supervisor
-graph, **marginalia**, scopes issues and watches the fleet.
+You can also dispatch a transformation directly:
 
-## Examples
-
-Below are quick examples showing how to use the fizzBuzz library from this repository.
-
-Node (ESM):
-
-```js
-import { fizzBuzz, fizzBuzzSingle, fizzBuzzRange } from './src/lib/main.js';
-
-console.log(fizzBuzzSingle(3)); // "Fizz"
-console.log(fizzBuzz(15)); // ["1","2","Fizz",...,"FizzBuzz"]
-console.log(fizzBuzzRange(1, 5)); // ["1","2","Fizz","4","Buzz"]
+```bash
+gh workflow run on-intent.yml -f work_item=12     # deliver issue #12
+gh workflow run on-schedule.yml -f mode=fix-ci    # repair a red main
 ```
 
-Browser (via src/web/lib.js):
+The supervisor graph, **marginalia**, scopes issues to the engine's one-shot
+envelope and watches the fleet.
 
-```html
-<script type="module">
-  import { fizzBuzz, fizzBuzzSingle, fizzBuzzRange } from './src/web/lib.js';
-  console.log(fizzBuzz(15));
-  console.log(fizzBuzzSingle(7));
-  console.log(fizzBuzzRange(10, 15)); // ["Buzz","11","Fizz","13","14","FizzBuzz"]
-</script>
+## Marginalia integration (graph memory + chat + provenance)
+
+Each repo is bound to a private **marginalia graph** that holds its provenanced
+memory. Three integration surfaces:
+
+### 1. MCP — graph memory for `claude -p` (`.mcp.json`)
+
+The template ships a `.mcp.json` registering the **`marginalia-seon`** MCP server,
+which exposes this repo's code-map/memory graph as read-only tools the engine can
+call during a transformation:
+
+```json
+{
+  "mcpServers": {
+    "marginalia-seon": {
+      "command": "npx",
+      "args": ["-y", "@polycode-projects/marginalia-seon"],
+      "env": {
+        "MARGINALIA_BASE_URL": "${MARGINALIA_BASE_URL:-https://marginalia.polycode.co.uk}",
+        "MARGINALIA_API_KEY": "${MARGINALIA_API_KEY}",
+        "MARGINALIA_GRAPH_ID": "${MARGINALIA_GRAPH_ID}"
+      }
+    }
+  }
+}
 ```
+
+Tools (query-only, every answer carries provenance):
+
+| Tool | Purpose |
+|------|---------|
+| `seon_describe({symbol})` | resolve a symbol → its class, typed edges (imports/calls/defines/tests), attestation, provenance |
+| `seon_impact({module})` | reverse closure — "what breaks if I change this", with covering tests |
+| `seon_search({query})` | natural-language fallback over the graph (symbol sweeps, commit deltas) |
+
+`transform.yml` attaches the MCP **automatically when `MARGINALIA_API_KEY` is set
+and a `.mcp.json` is present** (and adds the `mcp__marginalia-seon__*` tools to the
+agent's allowlist). It degrades gracefully: no key, or an unreachable server, just
+means the engine runs without the graph tools. The `x-api-key` is never logged.
+
+Locally, point `claude` at your graph the same way:
+
+```bash
+MARGINALIA_API_KEY=mga_… MARGINALIA_GRAPH_ID=<graph-uuid> claude --mcp-config .mcp.json -p "…"
+```
+
+### 2. Webhooks → marginalia (GitHub activity updates the graph)
+
+A **per-repo webhook** feeds this repo's GitHub activity into its graph:
+
+- **Payload URL:** `https://marginalia.polycode.co.uk/api/hooks/github/<graph_id>`
+- **Content type:** `application/json`, **Secret:** the shared HMAC secret (signatures verified server-side; a bad signature is `401`).
+- **Events:** `push`, `pull_request`, `issues`, `issue_comment`, `discussion`, `release` (everything else is dropped).
+
+This is how the graph stays current with what happens on GitHub — issues filed,
+PRs opened/merged, pushes — so the supervisor and the chat seed reflect reality.
+
+### 3. `summary-export` → the showcase chat seed (graph updates the repo)
+
+The optional `on-summary` workflow calls `agentic-lib summary-export@v8`, which
+pulls this repo's graph summary (`GET /api/graph/{id}/summary`, authed with the
+graph's `X-API-Key`) and commits it to `agentic-lib-logs/summary.json`. The
+intentïon.com showcase fetches that file raw to **seed the embedded chat** for this
+repo. It no-ops until `MARGINALIA_GRAPH_ID` / `MARGINALIA_API_KEY` are set.
+
+**The loop:** GitHub activity → (webhook) → graph memory → (`summary-export`) →
+`summary.json` → the showcase chat; and during delivery, `claude -p` reads that same
+graph back through the SEON MCP.
+
+## How it works
+
+```
+INTENT.md / issue / PR review  ─▶  agentic-lib transform@v8 (claude -p + Bedrock)  ─▶  Pull Request
+                                          ▲ reads graph memory via marginalia-seon MCP
+GitHub activity  ─▶ webhook ─▶ marginalia graph ─▶ summary-export ─▶ showcase chat seed
+```
+
+Each run is a one-shot `claude -p` invocation against Bedrock. The engine holds no
+state between runs — the plan and memory live in marginalia.
 
 ## Configuration
 
@@ -99,7 +179,7 @@ how to size work to the one-shot envelope:
 ref = "v8"          # pinned agentic-lib reusable-workflow ref
 engine = "claude"
 model = ""          # empty = resolve from the ANTHROPIC_MODEL CI variable
-hosted = "C"        # A=Claude cloud, B=Copilot, C=self-hosted
+hosted = "C"        # A=Claude cloud, B=Copilot, C=self-hosted Path B
 
 [caps]
 max_turns = 20
@@ -112,18 +192,21 @@ tests = "tests/unit/"
 behaviour = "tests/behaviour/"
 ```
 
-## File Layout
+## File layout
 
 ```
-INTENT.md                     <- the fixed point (what should exist)
-src/lib/main.js               <- library (browser-safe), evolved by the engine
-src/web/index.html            <- web page (imports ./lib.js)
-tests/unit/main.test.js       <- unit tests
-tests/behaviour/              <- Playwright E2E
+INTENT.md                       <- the fixed point (what should exist)
+.mcp.json                       <- marginalia-seon MCP registration (graph memory)
+agentic-lib.toml                <- slim engine config
+src/lib/main.js                 <- library (browser-safe), evolved by the engine
+src/web/{index.html,lib.js}     <- web demo (shows the library identity)
+tests/unit/{main,web}.test.js   <- unit + structure tests
+tests/behaviour/homepage.test.js<- Playwright E2E
+.github/workflows/on-*.yml      <- the 3 thin consumer workflows
 ```
 
 ## Links
 
 - [INTENT.md](INTENT.md) — your project goals
-- [agentic-lib documentation](https://github.com/polycode-public/agentic-lib) — the engine
-- [intenti&ouml;n website](https://xn--intenton-z2a.com)
+- [agentic-lib](https://github.com/polycode-public/agentic-lib) — the engine
+- [intentïon](https://xn--intenton-z2a.com) — the showcase
