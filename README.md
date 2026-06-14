@@ -86,7 +86,30 @@ gh workflow run on-intent.yml -f work_item=12     # deliver issue #12
 gh workflow run on-schedule.yml -f mode=fix-ci    # repair a red main
 ```
 
-The supervisor graph, **marginalia**, scopes issues to the engine's one-shot
+### Remote scaffolding — `on-init`
+
+A fourth workflow, `.github/workflows/on-init.yml`, is the **init analogue of
+`on-intent`**: it remotely runs `agentic-lib init` in its various flavours and opens
+a **draft PR** with the result, so the seed/scaffolding layer (workflows, `AGENTS.md`,
+`agentic-lib.toml`, `.mcp.json`, the package.json tooling) can be refreshed without a
+local checkout.
+
+```bash
+gh workflow run on-init.yml -f mode=init                       # refresh scaffolding (non-destructive)
+gh workflow run on-init.yml -f mode=init -f dry_run=true       # preview only, no commit
+gh workflow run on-init.yml -f mode=reset \
+   -f mission=6-kyu-understand-roman-numerals                  # full reset: clean product + seed a mission
+```
+
+| input | values | effect |
+|-------|--------|--------|
+| `mode` | `init` (default) / `reset` | `init` refreshes scaffolding; `reset` = `init --purge` (reset product skeleton + clean the GitHub repo) |
+| `mission` | a mission name / `random` | `reset` only — seed `INTENT.md` from the mission library |
+| `dry_run` | `true` / `false` | show what would change without writing or committing |
+
+Delivery (`on-intent`/`on-review`/`on-schedule`) → `transform.yml@v8`; scaffolding
+(`on-init`) → `init.yml@v8`. The supervisor graph, **marginalia**, scopes issues to
+the engine's one-shot
 envelope and watches the fleet.
 
 ## Marginalia integration (graph memory + chat + provenance)
@@ -202,7 +225,7 @@ src/lib/main.js                 <- library (browser-safe), evolved by the engine
 src/web/{index.html,lib.js}     <- web demo (shows the library identity)
 tests/unit/{main,web}.test.js   <- unit + structure tests
 tests/behaviour/homepage.test.js<- Playwright E2E
-.github/workflows/on-*.yml      <- the 3 thin consumer workflows
+.github/workflows/on-*.yml      <- thin consumer workflows (on-intent/review/schedule + on-init)
 ```
 
 ## Links
