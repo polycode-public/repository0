@@ -1,6 +1,6 @@
 # repo
 
-This repository is powered by [intenti&ouml;n agentic-lib](https://github.com/polycode-public/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests.
+This repository is powered by [intenti&ouml;n agentic-lib](https://github.com/polycode-public/agentic-lib) — autonomous code transformation driven by a one-shot `claude -p` engine on AWS Bedrock. Write an intent, and the engine writes code, runs tests, and opens pull requests.
 
 ## Getting Started
 
@@ -13,59 +13,16 @@ gh repo create my-project --template polycode-public/repository0 --public --clon
 cd my-project
 ```
 
-### Step 2: Initialise with a Mission
+### Step 2: Write Your Intent
 
-Run the init workflow from the GitHub Actions tab (**agentic-lib-init** with mode=purge), or use the CLI:
-
-```bash
-npx @polycode-public/agentic-lib init --purge --mission 7-kyu-understand-fizz-buzz
-```
-
-This resets the repository to a clean state with your chosen intent in `INTENT.md`. The default intent is **fizz-buzz** (7-kyu).
-
-#### Built-in Missions
-
-agentic-lib ships with 20 built-in missions plus two special modes, graded using [Codewars kyu/dan](https://docs.codewars.com/concepts/kata/) difficulty:
-
-| Mission | Kyu/Dan | Description |
-|---------|---------|-------------|
-| `random` | — | Randomly select from all built-in missions |
-| `generate` | — | Ask the LLM to generate a novel mission |
-| `8-kyu-remember-empty` | 8 kyu | Blank template |
-| `8-kyu-remember-hello-world` | 8 kyu | Hello World |
-| `7-kyu-understand-fizz-buzz` | 7 kyu | Classic FizzBuzz (default) |
-| `6-kyu-understand-hamming-distance` | 6 kyu | Hamming distance (strings + bits) |
-| `6-kyu-understand-roman-numerals` | 6 kyu | Roman numeral conversion |
-| `5-kyu-apply-ascii-face` | 5 kyu | ASCII face art |
-| `5-kyu-apply-string-utils` | 5 kyu | 10 string utility functions |
-| `4-kyu-apply-cron-engine` | 4 kyu | Cron expression parser |
-| `4-kyu-apply-dense-encoding` | 4 kyu | Dense binary encoding |
-| `4-kyu-analyze-json-schema-diff` | 4 kyu | JSON Schema diff |
-| `3-kyu-analyze-lunar-lander` | 3 kyu | Lunar lander simulation |
-| `3-kyu-evaluate-time-series-lab` | 3 kyu | Time series analysis |
-| `2-kyu-create-markdown-compiler` | 2 kyu | Markdown compiler |
-| `2-kyu-create-plot-code-lib` | 2 kyu | Code visualization library |
-| `1-kyu-create-ray-tracer` | 1 kyu | Ray tracer |
-| `1-dan-create-c64-emulator` | 1 dan | C64 emulator |
-| `1-dan-create-planning-engine` | 1 dan | Planning engine |
-| `2-dan-create-self-hosted` | 2 dan | Self-hosted AGI vision |
-
-List all available missions:
-
-```bash
-npx @polycode-public/agentic-lib iterate --list-missions
-```
-
-#### Write Your Own Mission
-
-Edit `INTENT.md` directly — describe what you want to build, the features, requirements, and acceptance criteria as checkboxes:
+Edit `INTENT.md` directly — describe what should exist: the features, requirements, and acceptance criteria as checkboxes. This is the fixed point the engine delivers towards. The template ships with a FizzBuzz intent as the simplest possible smoke test.
 
 ```markdown
-# Mission
+# Intent
 
 Build a CLI tool that converts CSV files to formatted Markdown tables.
 
-## Features
+## Requirements
 - Read CSV from file or stdin
 - Auto-detect delimiter
 
@@ -74,40 +31,38 @@ Build a CLI tool that converts CSV files to formatted Markdown tables.
 - [ ] All unit tests pass
 ```
 
-### Step 3: Enable GitHub Copilot and Configure Secrets
+### Step 3: Configure CI (Bedrock via GitHub OIDC)
 
-Add these secrets in **Settings > Secrets and variables > Actions**:
+CI runs as GitHub Actions and authenticates to AWS Bedrock with GitHub OIDC — no static keys. Set these in **Settings > Secrets and variables > Actions**:
 
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** > Read | Authenticates with the Copilot SDK |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows init to update workflow files |
+| Kind | Name | Value |
+|------|------|-------|
+| var | `CLAUDE_CODE_USE_BEDROCK` | `1` |
+| var | `ANTHROPIC_MODEL` | `eu.anthropic.claude-haiku-4-5-20251001-v1:0` |
+| var | `AWS_REGION` | `eu-west-2` |
+| secret | `AWS_OIDC_ROLE` | ARN of the Bedrock OIDC role to assume |
 
 Then in **Settings > Actions > General**:
 - Workflow permissions: **Read and write permissions**
 - Allow GitHub Actions to create PRs: **Checked**
 
-### Step 4: Activate the Schedule
-
-Workflows ship with schedule **off** by default. Activate them from the GitHub Actions tab by running **agentic-lib-schedule** with your desired frequency:
-
-| Frequency | Workflow runs | Init runs | Test runs |
-|-----------|--------------|-----------|-----------|
-| continuous | Every 20 min | Every 4 hours | Every hour |
-| hourly | Every hour | Every day | Every 4 hours |
-| daily | Every day | Every week | Every day |
-| weekly | Every week | Every month | Every week |
-| off | Never | Never | Never |
-
 ## How It Works
 
 ```
-INTENT.md -> [supervisor] -> dispatch workflows -> Issue -> Code -> Test -> PR -> Merge
-                                                     ^                           |
-                                                     +---------------------------+
+INTENT.md / issue / PR review  ->  agentic-lib transform@v8  ->  Pull Request
 ```
 
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context and dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
+Three thin consumer workflows pin the engine via
+`uses: polycode-public/agentic-lib/.github/workflows/transform.yml@v8`:
+
+| Workflow | Fires on | What it does |
+|----------|----------|--------------|
+| `.github/workflows/on-intent.yml`   | issue assigned/labelled, or `INTENT.md` pushed | delivers the intent as a PR |
+| `.github/workflows/on-review.yml`   | a PR review is submitted | addresses all review threads in one revision |
+| `.github/workflows/on-schedule.yml` | daily cron, or manual `fix-ci` | tends the repo, or fixes a red default branch |
+
+Each run is a one-shot `claude -p` invocation against Bedrock. The supervisor
+graph, **marginalia**, scopes issues and watches the fleet.
 
 ## Examples
 
@@ -134,41 +89,39 @@ Browser (via src/web/lib.js):
 
 ## Configuration
 
-Edit `agentic-lib.toml` to tune the system:
+`agentic-lib.toml` is slim — it tells the engine (and marginalia's issue-scoper)
+how to size work to the one-shot envelope:
 
 ```toml
-[schedule]
-supervisor = "off"          # off | weekly | daily | hourly | continuous
-focus = "mission"           # mission | maintenance
+[engine]
+ref = "v8"          # pinned agentic-lib reusable-workflow ref
+engine = "claude"
+model = ""          # empty = resolve from the ANTHROPIC_MODEL CI variable
+hosted = "C"        # A=Claude cloud, B=Copilot, C=self-hosted
 
-[tuning]
-profile = "max"             # min | med | max
-model = "gpt-5-mini"       # gpt-5-mini | claude-sonnet-4 | gpt-4.1
+[caps]
+max_turns = 20
+daily_runs = 8
 
-[mission-complete]
-acceptance-criteria-threshold = 50   # % of criteria that must be met
-min-resolved-issues = 1              # minimum closed issues
+[paths]
+intent = "INTENT.md"
+source = "src/lib/"
+tests = "tests/unit/"
+behaviour = "tests/behaviour/"
 ```
 
 ## File Layout
 
 ```
-src/lib/main.js              <- library (browser-safe)
+INTENT.md                     <- the fixed point (what should exist)
+src/lib/main.js               <- library (browser-safe), evolved by the engine
 src/web/index.html            <- web page (imports ./lib.js)
 tests/unit/main.test.js       <- unit tests
 tests/behaviour/              <- Playwright E2E
 ```
 
-## Updating
-
-The `init` workflow updates the agentic infrastructure automatically. To update manually:
-
-```bash
-npx @polycode-public/agentic-lib@latest init --purge
-```
-
 ## Links
 
 - [INTENT.md](INTENT.md) — your project goals
-- [agentic-lib documentation](https://github.com/polycode-public/agentic-lib) — full SDK docs
+- [agentic-lib documentation](https://github.com/polycode-public/agentic-lib) — the engine
 - [intenti&ouml;n website](https://xn--intenton-z2a.com)
