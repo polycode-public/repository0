@@ -100,6 +100,18 @@ merge PRs, delete branches, rewrite history.
 
 **Branch naming**: `claude/<short-description>`.
 
+### The three hands (this repo cannot self-drive)
+
+Nothing autonomous triggers delivery here: `on-schedule` is disabled (`tend` only),
+and `on-intent`/`on-review` need an externally raised issue, a pushed `INTENT.md`,
+or a manual dispatch. Delivery is driven by exactly one of **three hands**: **a
+human** (issues + dispatch + review/merge), **Claude + the benchmark harness** (the
+`intention` session orchestrating a run), or **marginalia** (the supervisor graph,
+one piece at a time via its `repo_dispatch` actuator). Rule: **one reliable
+one-shot per issue** — decompose a big `INTENT.md` into many one-shot-sized issues,
+each delivered as its own PR, re-worked until green, then merged. Decomposition and
+merge policy belong to the driver, not the engine.
+
 ## Code Quality Rules
 
 - **No unnecessary formatting** — don't reformat lines you're not changing.

@@ -112,6 +112,67 @@ Delivery (`on-intent`/`on-review`/`on-schedule`) → `transform.yml@v8`; scaffol
 the engine's one-shot
 envelope and watches the fleet.
 
+## Driving delivery by hand
+
+**This repo cannot self-drive.** The engine is wired in, but nothing autonomous
+triggers full delivery: `on-schedule` is disabled (and only ever runs a `tend`
+"one small improvement" pass), and `on-intent`/`on-review` need an externally
+raised issue, a pushed `INTENT.md`, or a manual dispatch. Delivery is driven by
+exactly one of **three hands**:
+
+- **a human** (raising issues, dispatching workflows, reviewing and merging PRs by hand),
+- **Claude + the benchmark harness** (the `intention` Claude Code session orchestrating a run),
+- **marginalia** (the supervisor graph, driving one piece at a time via its `repo_dispatch` actuator against a repo-specific graph).
+
+The grain is fixed: one trigger → one headless `claude -p` transformation → one
+draft PR (or nothing). Iteration is a *new* trigger (a review comment, a
+re-dispatch), never an in-run loop. "Done" is mechanical — a draft PR exists; the
+engine never asserts completeness itself. An `INTENT.md` of any size is delivered
+by **decomposing it into many one-shot-sized issues, each delivered as its own
+PR, re-worked until green, and merged** — one reliable one-shot per issue.
+Decomposition and merge policy are the driver's job, not the engine's.
+
+To drive the loop yourself as a human (owner/repo form `polycode-public/<repo>`):
+
+**1. Write/refine the goal in `INTENT.md`** — the fixed point.
+
+**2. Small intent** — push `INTENT.md` (the `on-intent` push trigger fires), or
+dispatch it directly:
+
+```bash
+gh workflow run on-intent.yml -R polycode-public/<repo> -f work_item=INTENT.md
+```
+
+**3. Larger intent** — decompose it yourself into focused issues, each sized to
+land in ONE PR, then raise and trigger them one at a time. One issue → one draft
+PR carrying a `fixes #<n>` trailer:
+
+```bash
+gh issue create -R polycode-public/<repo> \
+  --title "Add roman-numeral encoder" \
+  --body "Encode 1..3999 to numerals; reject out-of-range."
+gh workflow run on-intent.yml -R polycode-public/<repo> -f work_item=42   # deliver issue #42
+```
+
+**4. Review the draft PR.** To request changes, submit a PR review with "changes
+requested" or comment mentioning `@agentic-lib` → `on-review` fires → the engine
+pushes one revision to the same branch:
+
+```bash
+gh pr review <pr-number> -R polycode-public/<repo> --request-changes \
+  --body "Handle the 0 and 4000 edge cases."
+```
+
+**5. When green and acceptable, merge it:**
+
+```bash
+gh pr merge <pr-number> -R polycode-public/<repo> --squash --delete-branch
+```
+
+**6. Repeat per issue** until `INTENT.md`'s acceptance criteria are met on `main`.
+
+There is no cron or event that does this for you — a hand drives each step.
+
 ## Marginalia integration (graph memory + chat + provenance)
 
 Each repo is bound to a private **marginalia graph** that holds its provenanced
