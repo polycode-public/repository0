@@ -45,6 +45,40 @@ And in **Settings > Actions > General**: workflow permissions **Read and write**
 To connect the repo to its **marginalia graph** (chat seed, webhooks, MCP — see
 below), also set the secrets `MARGINALIA_GRAPH_ID` and `MARGINALIA_API_KEY`.
 
+## Usage
+
+### `fizzBuzz(n)`
+
+Returns an array of FizzBuzz strings from 1 to n. Multiples of 3 become "Fizz", multiples of 5 become "Buzz", and multiples of both become "FizzBuzz".
+
+```javascript
+import { fizzBuzz } from './src/lib/main.js';
+
+fizzBuzz(15);
+// ['1', '2', 'Fizz', '4', 'Buzz', 'Fizz', '7', '8', 'Fizz', 'Buzz', '11', 'Fizz', '13', '14', 'FizzBuzz']
+
+fizzBuzz(0);
+// []
+```
+
+### `fizzBuzzSingle(n)`
+
+Returns the FizzBuzz string for a single positive integer.
+
+```javascript
+import { fizzBuzzSingle } from './src/lib/main.js';
+
+fizzBuzzSingle(3);    // 'Fizz'
+fizzBuzzSingle(5);    // 'Buzz'
+fizzBuzzSingle(15);   // 'FizzBuzz'
+fizzBuzzSingle(7);    // '7'
+```
+
+**Edge cases:**
+- Passing `n = 0` returns an empty array (for `fizzBuzz`).
+- Negative numbers throw `RangeError`.
+- Non-integers throw `TypeError`.
+
 ## CLI tools (npm scripts)
 
 The engine's CLI is exposed as simplified `npm run` scripts (they call
