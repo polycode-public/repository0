@@ -51,6 +51,49 @@ The engine's CLI is exposed as simplified `npm run` scripts (they call
 `npx github:polycode-public/agentic-lib#v8` — once agentic-lib is published to npm,
 `npx @polycode-public/agentic-lib` works the same way):
 
+## API
+
+The library exports two FizzBuzz functions:
+
+### `fizzBuzz(n)`
+
+Returns an array of strings from 1 to n, replacing:
+- Multiples of 3 with `"Fizz"`
+- Multiples of 5 with `"Buzz"`
+- Multiples of both with `"FizzBuzz"`
+
+**Example:**
+```javascript
+import { fizzBuzz } from "./src/lib/main.js";
+
+fizzBuzz(15);
+// ["1", "2", "Fizz", "4", "Buzz", "Fizz", "7", "8", "Fizz", "Buzz", "11", "Fizz", "13", "14", "FizzBuzz"]
+
+fizzBuzz(0);
+// []
+```
+
+### `fizzBuzzSingle(n)`
+
+Returns the FizzBuzz string for a single positive integer.
+
+**Example:**
+```javascript
+import { fizzBuzzSingle } from "./src/lib/main.js";
+
+fizzBuzzSingle(3);    // "Fizz"
+fizzBuzzSingle(5);    // "Buzz"
+fizzBuzzSingle(15);   // "FizzBuzz"
+fizzBuzzSingle(7);    // "7"
+```
+
+**Edge cases:**
+- `fizzBuzz(0)` returns an empty array
+- Negative numbers throw `RangeError`
+- Non-integers throw `TypeError`
+
+## CLI tools
+
 | Script | What it does |
 |--------|--------------|
 | `npm run init` | Lay down / refresh the consumer workflows, `AGENTS.md`, `agentic-lib.toml`, `.mcp.json`, and the engine CLI scripts + tooling deps in `package.json` (non-destructive — never overwrites your name/version/product). |

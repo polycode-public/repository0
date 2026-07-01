@@ -27,6 +27,33 @@ export function getIdentity() {
   return { name, version, description };
 }
 
+export function fizzBuzzSingle(n) {
+  if (!Number.isInteger(n)) {
+    throw new TypeError("Expected an integer");
+  }
+  if (n < 1) {
+    throw new RangeError("Expected a positive integer");
+  }
+  if (n % 15 === 0) return "FizzBuzz";
+  if (n % 3 === 0) return "Fizz";
+  if (n % 5 === 0) return "Buzz";
+  return String(n);
+}
+
+export function fizzBuzz(n) {
+  if (!Number.isInteger(n)) {
+    throw new TypeError("Expected an integer");
+  }
+  if (n < 0) {
+    throw new RangeError("Expected a non-negative integer");
+  }
+  const result = [];
+  for (let i = 1; i <= n; i++) {
+    result.push(fizzBuzzSingle(i));
+  }
+  return result;
+}
+
 export function main(args) {
   if (args?.includes("--version")) {
     console.log(version);
