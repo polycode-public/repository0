@@ -1,7 +1,7 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "FizzBuzz functions — a simple proof of pipeline delivery",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -16,8 +16,8 @@
     "missions": "npx -y github:polycode-public/agentic-lib#v8 init --list-missions",
     "engine:version": "npx -y github:polycode-public/agentic-lib#v8 version"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["fizzbuzz", "library", "template"],
+  "author": "Polycode Limited",
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.60.0",
