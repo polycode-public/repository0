@@ -39,6 +39,34 @@ export function main(args) {
   console.log(`${name}@${version}`);
 }
 
+export function fizzBuzzSingle(n) {
+  if (typeof n !== "number" || !Number.isInteger(n)) {
+    throw new TypeError("Input must be an integer");
+  }
+  if (n < 1) {
+    throw new RangeError("Input must be a positive integer");
+  }
+  if (n % 15 === 0) return "FizzBuzz";
+  if (n % 3 === 0) return "Fizz";
+  if (n % 5 === 0) return "Buzz";
+  return String(n);
+}
+
+export function fizzBuzz(n) {
+  if (typeof n !== "number" || !Number.isInteger(n)) {
+    throw new TypeError("Input must be an integer");
+  }
+  if (n < 0) {
+    throw new RangeError("Input must be non-negative");
+  }
+  if (n === 0) return [];
+  const result = [];
+  for (let i = 1; i <= n; i++) {
+    result.push(fizzBuzzSingle(i));
+  }
+  return result;
+}
+
 if (isNode) {
   const { fileURLToPath } = await import("url");
   if (process.argv[1] === fileURLToPath(import.meta.url)) {

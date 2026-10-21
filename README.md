@@ -45,6 +45,29 @@ And in **Settings > Actions > General**: workflow permissions **Read and write**
 To connect the repo to its **marginalia graph** (chat seed, webhooks, MCP — see
 below), also set the secrets `MARGINALIA_GRAPH_ID` and `MARGINALIA_API_KEY`.
 
+## Library Usage
+
+The library exports FizzBuzz functions:
+
+```javascript
+import { fizzBuzz, fizzBuzzSingle } from 'repo';
+
+// Get FizzBuzz sequence from 1 to n
+const result = fizzBuzz(15);
+// → ['1', '2', 'Fizz', '4', 'Buzz', 'Fizz', '7', '8', 'Fizz', 'Buzz', '11', 'Fizz', '13', '14', 'FizzBuzz']
+
+// Get FizzBuzz value for a single number
+fizzBuzzSingle(3);  // → 'Fizz'
+fizzBuzzSingle(5);  // → 'Buzz'
+fizzBuzzSingle(15); // → 'FizzBuzz'
+fizzBuzzSingle(7);  // → '7'
+
+// Edge cases
+fizzBuzz(0);        // → []
+fizzBuzz(-1);       // throws RangeError
+fizzBuzzSingle(3.5); // throws TypeError
+```
+
 ## CLI tools (npm scripts)
 
 The engine's CLI is exposed as simplified `npm run` scripts (they call
